@@ -1,0 +1,10 @@
+from sqlalchemy.orm import Session
+from .base import BaseRepository
+from app.models.product import Product
+
+class ProductRepository(BaseRepository[Product]):
+    def __init__(self, db: Session):
+        super().__init__(db, Product)
+    
+    def get_by_sku(self, sku: str):
+        return self.db.query(self._model).filter(self._model.sku == sku).first()
