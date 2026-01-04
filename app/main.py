@@ -3,6 +3,8 @@ from app.database import engine
 from app.models import base
 from app.schemas.transaction import TransactionRequest, TransactionType
 from app.commands import ArrivalCommand, ShipmentCommand, WriteOffCommand
+from app.services.warehouse import WarehouseService
+from app.observers.stock_monitor import StockMonitor
 from app.database import get_db
 from sqlalchemy.orm import Session
 from fastapi import FastAPI, Depends, HTTPException
@@ -18,6 +20,9 @@ def read_root():
 
 @app.post("/transactions")
 def create_transaction(transaction: TransactionRequest, db: Session = Depends(get_db)):
+    warehouse_service = WarehouseService(db)
+    warehouse_service.attach(StockMonitor())
+
     command = None
     if transaction.type == TransactionType.ARRIVAL:
         command = ArrivalCommand(db, transaction.product_id, transaction.quantity)
@@ -28,7 +33,7 @@ def create_transaction(transaction: TransactionRequest, db: Session = Depends(ge
     
     if command:
         try:
-            command.execute()
+            warehouse_service.process_transaction(command)
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
         return {"message": "Transaction executed successfully"}
