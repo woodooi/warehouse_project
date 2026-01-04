@@ -11,16 +11,26 @@ from app.observers.stock_monitor import StockMonitor
 from app.database import get_db
 from sqlalchemy.orm import Session
 from fastapi import FastAPI, Depends, HTTPException, Query
+from fastapi.staticfiles import StaticFiles
 from enum import Enum
+from app.services.product import ProductService
+from app.schemas.product import Product
 
 # Create tables
 base.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Warehouse Management System")
 
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+@app.get("/products", response_model=list[Product])
+def get_products(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    product_service = ProductService(db)
+    return product_service.get_products(skip, limit)
+
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the Warehouse Management System API"}
+    return {"message": "Welcome to the Warehouse Management System API. Visit /static/index.html for the dashboard."}
 
 @app.post("/transactions")
 def create_transaction(transaction: TransactionRequest, db: Session = Depends(get_db)):
