@@ -4,10 +4,14 @@ from app.models import base
 from app.schemas.transaction import TransactionRequest, TransactionType
 from app.commands import ArrivalCommand, ShipmentCommand, WriteOffCommand
 from app.services.warehouse import WarehouseService
+from app.services.reporting import ReportingService
+from app.reporting.strategies import CurrentValueStrategy, HistoricalMovementStrategy
+from app.reporting.generators import InvoiceGenerator, ActGenerator
 from app.observers.stock_monitor import StockMonitor
 from app.database import get_db
 from sqlalchemy.orm import Session
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Query
+from enum import Enum
 
 # Create tables
 base.Base.metadata.create_all(bind=engine)
@@ -39,4 +43,43 @@ def create_transaction(transaction: TransactionRequest, db: Session = Depends(ge
         return {"message": "Transaction executed successfully"}
     else:
         raise HTTPException(status_code=400, detail="Invalid transaction type")
+
+class ReportType(str, Enum):
+    VALUE = "value"
+    HISTORY = "history"
+
+class ReportFormat(str, Enum):
+    JSON = "json"
+    INVOICE = "invoice"
+    ACT = "act"
+
+@app.get("/reports")
+def get_report(
+    type: ReportType, 
+    format: ReportFormat = ReportFormat.JSON, 
+    db: Session = Depends(get_db)
+):
+    strategy = None
+    if type == ReportType.VALUE:
+        strategy = CurrentValueStrategy()
+    elif type == ReportType.HISTORY:
+        strategy = HistoricalMovementStrategy()
+    
+    service = ReportingService(db, strategy)
+
+    if format == ReportFormat.JSON:
+        return service.get_report_data()
+    
+    generator = None
+    if format == ReportFormat.INVOICE:
+        generator = InvoiceGenerator()
+    elif format == ReportFormat.ACT:
+        generator = ActGenerator()
+    
+    if generator:
+        report_content = service.generate_report_file(generator)
+        return {"content": report_content}
+    
+    return {"error": "Invalid format"}
+
 
