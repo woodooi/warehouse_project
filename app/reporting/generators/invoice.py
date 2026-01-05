@@ -3,8 +3,8 @@ from typing import Dict, Any
 import datetime
 
 class InvoiceGenerator(ReportGenerator):
-    def header(self, data: Dict[str, Any]) -> str:
-        return f"INVOICE REPORT - {datetime.date.today()}\nType: {data.get('report_type')}\n" + "="*40
+    def header(self, data: Dict[str, Any], date: datetime.date) -> str:
+        return f"INVOICE REPORT - {date}\nType: {data.get('report_type')}\n" + "="*40
 
     def body(self, data: Dict[str, Any]) -> str:
         lines = ["\nDETAILS:"]

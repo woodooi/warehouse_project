@@ -3,8 +3,8 @@ from app.models.product import Product
 import logging
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO) # логуємо все починаючи з INFO 
+logger = logging.getLogger(__name__) # створюємо логування на ім'я файлу
 
 class StockMonitor(Observer):
     def update(self, product: Product):

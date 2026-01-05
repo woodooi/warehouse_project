@@ -3,8 +3,8 @@ from typing import Dict, Any
 import datetime
 
 class ActGenerator(ReportGenerator):
-    def header(self, data: Dict[str, Any]) -> str:
-        return f"OFFICIAL ACT - {datetime.date.today()}\nSubject: {data.get('report_type')}\n" + "-"*40
+    def header(self, data: Dict[str, Any], date: datetime.date) -> str:
+        return f"OFFICIAL ACT - {date}\nSubject: {data.get('report_type')}\n" + "-"*40
 
     def body(self, data: Dict[str, Any]) -> str:
         lines = ["\nFINDINGS:"]
