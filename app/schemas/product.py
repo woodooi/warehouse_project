@@ -20,8 +20,11 @@ class ProductUpdate(BaseModel):
     min_stock: Optional[int] = None
     supplier_id: Optional[int] = None
 
+from .supplier import Supplier
+
 class Product(ProductBase):
     id: int
+    supplier: Optional[Supplier] = None
 
     class Config:
         from_attributes = True

@@ -14,10 +14,12 @@ async function fetchProducts() {
             // Update Table
             if (tbody) {
                 const tr = document.createElement('tr');
+                const supplierName = product.supplier ? product.supplier.name : 'No Supplier';
                 tr.innerHTML = `
                     <td>${product.id}</td>
                     <td>${product.name}</td>
                     <td>${product.sku}</td>
+                    <td>${supplierName}</td>
                     <td>${product.quantity}</td>
                     <td>${product.price}</td>
                     <td>${product.min_stock}</td>
