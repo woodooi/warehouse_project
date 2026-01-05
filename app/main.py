@@ -12,6 +12,7 @@ from app.database import get_db
 from sqlalchemy.orm import Session
 from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
 from enum import Enum
 from app.services.product import ProductService
 from app.schemas.product import Product, ProductCreate
@@ -110,7 +111,7 @@ def get_report(
     
     if generator:
         report_content = service.generate_report_file(generator, date)
-        return {"content": report_content}
+        return HTMLResponse(content=report_content, status_code=200)
     
     return {"error": "Invalid format"}
 
