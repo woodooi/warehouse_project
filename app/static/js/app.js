@@ -181,3 +181,4 @@ document.addEventListener('DOMContentLoaded', () => {
     const suppForm = document.getElementById('supplier-form');
     if (suppForm) suppForm.addEventListener('submit', handleSupplierCreate);
 });
+

@@ -17,5 +17,6 @@ class CurrentValueStrategy(ReportStrategy):
         return {
             "report_type": "Current Inventory Value",
             "total_value": total_value,
+            "total_quantity": sum(p.quantity for p in products),
             "details": product_details
         }

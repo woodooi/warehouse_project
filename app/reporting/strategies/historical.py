@@ -8,7 +8,7 @@ from typing import Dict, Any
 
 class HistoricalMovementStrategy(ReportStrategy):
     def generate(self, db: Session, date: datetime.date) -> Dict[str, Any]:
-        transactions = TransactionRepository(db).get_by_date(date)
+        transactions = TransactionRepository(db).get_all()
         # Simply aggregating counts for demo purposes
         movement_summary = {
             "ARRIVAL": 0,
