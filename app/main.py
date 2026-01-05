@@ -5,7 +5,7 @@ from app.schemas.transaction import TransactionRequest, TransactionType
 from app.commands import ArrivalCommand, ShipmentCommand, WriteOffCommand
 from app.services.warehouse import WarehouseService
 from app.services.reporting import ReportingService
-from app.reporting.strategies import CurrentValueStrategy, HistoricalMovementStrategy
+from app.reporting.strategies import CurrentValueStrategy, HistoricalMovementStrategy, StateStrategy
 from app.reporting.generators import InvoiceGenerator, ActGenerator
 from app.observers.stock_monitor import StockMonitor
 from app.database import get_db
@@ -14,7 +14,9 @@ from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.staticfiles import StaticFiles
 from enum import Enum
 from app.services.product import ProductService
-from app.schemas.product import Product
+from app.schemas.product import Product, ProductCreate
+import datetime
+from typing import Optional
 
 # Create tables
 base.Base.metadata.create_all(bind=engine)
@@ -27,6 +29,11 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 def get_products(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     product_service = ProductService(db)
     return product_service.get_products(skip, limit)
+
+@app.post("/products", response_model=Product)
+def create_product(product: ProductCreate, db: Session = Depends(get_db)):
+    product_service = ProductService(db)
+    return product_service.create_product(product)
 
 @app.get("/")
 def read_root():
@@ -57,6 +64,7 @@ def create_transaction(transaction: TransactionRequest, db: Session = Depends(ge
 class ReportType(str, Enum):
     VALUE = "value"
     HISTORY = "history"
+    STATE = "state"
 
 class ReportFormat(str, Enum):
     JSON = "json"
@@ -67,6 +75,7 @@ class ReportFormat(str, Enum):
 def get_report(
     type: ReportType, 
     format: ReportFormat = ReportFormat.JSON, 
+    date: Optional[datetime.date] = None,
     db: Session = Depends(get_db)
 ):
     strategy = None
@@ -74,11 +83,12 @@ def get_report(
         strategy = CurrentValueStrategy()
     elif type == ReportType.HISTORY:
         strategy = HistoricalMovementStrategy()
-    
+    elif type == ReportType.STATE:
+        strategy = StateStrategy()
     service = ReportingService(db, strategy)
 
     if format == ReportFormat.JSON:
-        return service.get_report_data()
+        return service.get_report_data(date)
     
     generator = None
     if format == ReportFormat.INVOICE:
@@ -87,7 +97,7 @@ def get_report(
         generator = ActGenerator()
     
     if generator:
-        report_content = service.generate_report_file(generator)
+        report_content = service.generate_report_file(generator, date)
         return {"content": report_content}
     
     return {"error": "Invalid format"}
