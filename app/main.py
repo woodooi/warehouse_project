@@ -15,6 +15,8 @@ from fastapi.staticfiles import StaticFiles
 from enum import Enum
 from app.services.product import ProductService
 from app.schemas.product import Product, ProductCreate
+from app.services.supplier import SupplierService
+from app.schemas.supplier import Supplier, SupplierCreate
 import datetime
 from typing import Optional
 
@@ -34,6 +36,16 @@ def get_products(skip: int = 0, limit: int = 100, db: Session = Depends(get_db))
 def create_product(product: ProductCreate, db: Session = Depends(get_db)):
     product_service = ProductService(db)
     return product_service.create_product(product)
+
+@app.get("/suppliers", response_model=list[Supplier])
+def get_suppliers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    supplier_service = SupplierService(db)
+    return supplier_service.get_suppliers(skip, limit)
+
+@app.post("/suppliers", response_model=Supplier)
+def create_supplier(supplier: SupplierCreate, db: Session = Depends(get_db)):
+    supplier_service = SupplierService(db)
+    return supplier_service.create_supplier(supplier)
 
 @app.get("/")
 def read_root():
