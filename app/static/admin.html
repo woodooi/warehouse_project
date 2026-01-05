@@ -20,16 +20,94 @@
     </header>
 
     <main class="container">
+        <div class="grid grid-cols-2">
+            <section class="card">
+                <h2>Create Product</h2>
+                <form id="product-form">
+                    <label for="prod-name">Name</label>
+                    <input type="text" id="prod-name" name="name" required>
+
+                    <label for="prod-sku">SKU</label>
+                    <input type="text" id="prod-sku" name="sku" required>
+
+                    <label for="prod-price">Price</label>
+                    <input type="number" id="prod-price" name="price" step="0.01" required>
+
+                    <label for="prod-quantity">Initial Quantity</label>
+                    <input type="number" id="prod-quantity" name="quantity" min="0" required>
+
+                    <label for="prod-min-stock">Min Stock</label>
+                    <input type="number" id="prod-min-stock" name="min_stock" min="0" required>
+
+                    <div class="d-flex justify-content-between"
+                        style="display: flex; justify-content: space-between; align-items: center;">
+                        <label for="prod-supplier">Supplier</label>
+                        <button type="button" class="btn btn-sm" onclick="fetchSuppliers()"
+                            style="padding: 0 0.5rem; font-size: 0.75rem; margin-bottom: 1rem;">Refresh List</button>
+                    </div>
+                    <select id="prod-supplier" name="supplier_id">
+                        <option value="">No Supplier</option>
+                    </select>
+
+                    <button type="submit" class="btn btn-primary">Create Product</button>
+                </form>
+            </section>
+
+            <section class="card">
+                <h2>Create Supplier</h2>
+                <form id="supplier-form">
+                    <label for="supp-name">Name</label>
+                    <input type="text" id="supp-name" name="name" required>
+
+                    <label for="supp-email">Contact Email</label>
+                    <input type="email" id="supp-email" name="contact_email" required>
+
+                    <button type="submit" class="btn btn-primary">Create Supplier</button>
+                </form>
+            </section>
+        </div>
+
         <section class="card">
-            <h2>Manage Suppliers</h2>
-            <p>Admin functionality to be implemented...</p>
+            <h2>Product Management</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>SKU</th>
+                            <th>Stock</th>
+                            <th>Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-products-table">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
         </section>
 
         <section class="card">
-            <h2>System Settings</h2>
-            <p>Settings configuration to be implemented...</p>
+            <h2>Supplier Management</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-suppliers-table">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
         </section>
     </main>
+    <script src="/static/js/app.js"></script>
 </body>
 
 </html>
